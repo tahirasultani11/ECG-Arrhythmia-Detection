@@ -1,10 +1,10 @@
-🫀 ECG Arrhythmia Classification Pipeline
+#🫀 ECG Arrhythmia Classification Pipeline
 
 This repository contains a machine learning pipeline for classifying ECG signals into Normal vs Arrhythmia across multiple publicly available datasets. It integrates feature extraction, preprocessing, model training, and external validation in a robust and reproducible way.
 
 ---
 
-📂 Supported Datasets
+##📂 Supported Datasets
 
 1. PTB-XL – Large-scale annotated ECG dataset.
 
