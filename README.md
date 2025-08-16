@@ -82,11 +82,10 @@ XGBoost model achieves the best tradeoff between accuracy and generalization.
 🛠 Installation
 
 # Clone repo
-git clone https://github.com/tahirasultani11/ecg-arrhythmia-classification.git
+git clone https://github.com/tahirasultani11/ECG-Arrhythmia-Detection.git
 cd ecg-arrhythmia-classification
-
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requirements.tx
 
 ---
 
