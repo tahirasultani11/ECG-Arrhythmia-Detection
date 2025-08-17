@@ -5,7 +5,7 @@ ECG-Arrhythmia-Detection is an open-source project for *automated arrhythmia cla
 
 ---
 
-## 🔹 Model in Action
+## 💫 Model in Action
 
 Imagine a cardiologist reviewing ECG signals. This pipeline streamlines the workflow:
 
@@ -70,6 +70,7 @@ Ensure you have the following installed:
    Inside the script, update dataset paths:
 
    python
+   
    PTBXL_DATA_DIR = r"your_path/ptb-xl"
    ARRHYTHMIA_DATA_PATH = r"your_path/arrhythmia.data.csv"
    PTBDB_DIR = r"your_path/ptbdb"
