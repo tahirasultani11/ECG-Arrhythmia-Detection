@@ -10,7 +10,6 @@ import pandas as pd
 import seaborn as sns
 import xgboost as xgb
 import matplotlib.pyplot as plt
-import glob
 from tqdm import tqdm
 from scipy.io import loadmat
 from scipy.signal import find_peaks
@@ -21,10 +20,9 @@ from sklearn.feature_selection import RFE
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from scipy.signal import butter, filtfilt, find_peaks
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-
-
 
 # =====================
 # CONFIGURATION
@@ -44,15 +42,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # =====================
 # FEATURE EXTRACTION (with bandpass filtering + normalization)
 # =====================
-from scipy.signal import butter, filtfilt, find_peaks
-
 def bandpass_filter(signal, fs=500, lowcut=0.5, highcut=40, order=5):
     nyquist = 0.5 * fs
     low = lowcut / nyquist
     high = highcut / nyquist
     b, a = butter(order, [low, high], btype="band")
     return filtfilt(b, a, signal)
-
 def extract_advanced_features(signal, fs=500):
     features = []
     for lead in signal.T:
@@ -70,20 +65,15 @@ def extract_advanced_features(signal, fs=500):
         features.extend([
             np.mean(lead), np.std(lead),
             np.min(lead), np.max(lead),
-            skew(lead), kurtosis(lead)
-        ])
+            skew(lead), kurtosis(lead) ])
 
         # R-peak detection + RR intervals
         r_peaks, _ = find_peaks(lead, distance=int(0.25 * fs))
         rr_intervals = np.diff(r_peaks) / fs
         if len(rr_intervals) > 0:
-            features.extend([
-                np.mean(rr_intervals), np.std(rr_intervals),
-                np.min(rr_intervals), np.max(rr_intervals)
-            ])
+            features.extend([np.mean(rr_intervals), np.std(rr_intervals),np.min(rr_intervals), np.max(rr_intervals)])
         else:
             features.extend([np.nan] * 4)
-
     return features
 
 # =====================
@@ -120,6 +110,9 @@ def find_dat_files(ptbxl_dir, suffix='_hr'):
             continue
     return dat_map
 
+# =====================
+# PTB-XL LOADING
+# =====================
 def load_ptbxl_features_and_labels(ptb_meta_df, dat_file_map):
     features_list, labels_list = [], []
     for _, row in tqdm(ptb_meta_df.iterrows(), total=len(ptb_meta_df), desc="PTB-XL"):
@@ -170,8 +163,6 @@ def load_ptbdb_dataset(PTBDB_DIR):
 # =====================
 # CHAPMAN DATASET LOADING (.mat + .hea)
 # =====================
-from scipy.io import loadmat
-
 def load_chapman_dataset(CHAPMAN_DIR):
     mat_files = glob.glob(os.path.join(CHAPMAN_DIR, "*.mat"))
     features, labels = [], []
@@ -222,6 +213,8 @@ def plot_confusion_matrix(y_true, y_pred, labels, title, cmap, save_path=None):
     plt.close()
 
 def evaluate_external_dataset(X_ext, y_ext, model, imputer, scaler, rfe, name, save_csv=True):
+    X_ext = X_ext.reindex(columns=range(imputer.n_features_in_), fill_value=np.nan)
+    
     #Preprocessing
     X_ext_imputed = imputer.transform(X_ext)
     X_ext_scaled = scaler.transform(X_ext_imputed)
@@ -237,9 +230,8 @@ def evaluate_external_dataset(X_ext, y_ext, model, imputer, scaler, rfe, name, s
 
     #Confusion Matrix
     cm = confusion_matrix(y_ext, y_pred)
-    logging.info("Confusion Matrix:\n{cm}")
+    logging.info(f"Confusion Matrix:\n{cm}")
     plot_confusion_matrix(y_ext,y_pred,["Normal", "Arrhythmia"], f"External{name}",'Reds',save_path=f"cm_{name.lower().replace('','-')}.png")
-    
     if save_csv:
         df_out = pd.DataFrame({"record": range(len(y_ext)), "true_label": y_ext, "pred_label": y_pred, "arrhythmia_prob": y_proba})
         csv_file = f"predictions_{name.lower().replace(' ', '_')}.csv"
@@ -250,6 +242,7 @@ def evaluate_external_dataset(X_ext, y_ext, model, imputer, scaler, rfe, name, s
 # MAIN PIPELINE
 # =====================
 def run_pipeline():
+
     # Load PTB-XL data
     ptb_meta_df = load_ptbxl_metadata(PTBXL_DATA_DIR)
     dat_file_map = find_dat_files(PTBXL_DATA_DIR)
