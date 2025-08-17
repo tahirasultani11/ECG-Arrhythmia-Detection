@@ -1,148 +1,112 @@
-#🫀 ECG Arrhythmia Classification Pipeline
 
-This repository contains a machine learning pipeline for classifying ECG signals into Normal vs Arrhythmia across multiple publicly available datasets. It integrates feature extraction, preprocessing, model training, and external validation in a robust and reproducible way.
+# ECG-Arrhythmia-Detection
 
----
-
-##📂 Supported Datasets
-
-1. PTB-XL – Large-scale annotated ECG dataset.
-
-
-2. PTB Diagnostic Database (PTB-DB) – Smaller dataset with detailed clinical ECGs.
-
-
-3. Chapman-Shaoxing – Large-scale 12-lead ECG dataset (.mat + .hea format).
-
-
-4. UCI Arrhythmia Dataset – Tabular arrhythmia dataset.
+ECG-Arrhythmia-Detection is an open-source project for *automated arrhythmia classification* using multiple ECG datasets. It integrates advanced *feature extraction techniques, robust **machine learning models* (Logistic Regression, Random Forest, and XGBoost), and validates across external benchmark datasets (PTB-XL, PTB-DB, Chapman-Shaoxing).
 
 ---
 
-⚙ Pipeline Overview
+## 🌟 Model in Action
 
-1. Feature Extraction
+Imagine a cardiologist reviewing ECG signals. This pipeline streamlines the workflow:
 
-Performed on ECG signals (all leads).
-
-Includes:
-
-Bandpass filtering (0.5–40 Hz) → removes baseline drift & noise.
-
-Normalization (zero mean, unit variance per lead).
-
-Statistical features (mean, std, min, max, skewness, kurtosis).
-
-Heart-rate variability (RR intervals from R-peaks).
-
-2. Data Preprocessing
-
-Missing values handled with mean imputation.
-
-Features scaled with StandardScaler.
-
-Imbalanced data handled with SMOTE oversampling.
-
-3. Feature Selection
-
-Recursive Feature Elimination (RFE) with Logistic Regression.
-
-Selects top 150 most informative features.
-
-4. Models
-
-Logistic Regression (baseline).
-
-Random Forest (with RandomizedSearchCV tuning).
-
-XGBoost (final model).
-
-5. Evaluation
-
-Performance metrics: Accuracy, Precision, Recall, F1 Score.
-
-Confusion Matrix visualization with Seaborn.
-
-External validation on PTB-DB and Chapman-Shaoxing.
-
-Predictions saved as .csv for leaderboard submission.
+1. *Signal Preprocessing:* Raw ECG signals undergo bandpass filtering (0.5–40Hz) and normalization.
+2. *Feature Extraction:* Extracts statistical features, R-peak detection, and RR-interval features.
+3. *Dataset Integration:* Combines *PTB-XL* (large ECG dataset) with *Arrhythmia dataset* for training.
+4. *Model Training:* Uses *Logistic Regression, Random Forest (with tuning), and XGBoost*.
+5. *External Validation:* Evaluates trained models on *PTB-DB* and *Chapman-Shaoxing* datasets.
+6. *Performance Insights:* Reports metrics (Accuracy, Precision, Recall, F1) with confusion matrices.
 
 ---
 
-📊 Results
+## ✨ Features
 
-Consistent performance across datasets due to robust preprocessing.
-
-External validation ensures generalization, not just overfitting to PTB-XL.
-
-XGBoost model achieves the best tradeoff between accuracy and generalization.
-
----
-
-🛠 Installation
-
-# Clone repo
-git clone https://github.com/tahirasultani11/ECG-Arrhythmia-Detection.git
-cd ecg-arrhythmia-classification
-# Install dependencies
-pip install -r requirements.tx
+* *Advanced Signal Preprocessing:* Bandpass filtering, normalization, and feature extraction.
+* *Multi-Dataset Integration:* Supports PTB-XL, Arrhythmia, PTB-DB, and Chapman-Shaoxing.
+* *Imbalanced Data Handling:* Uses *SMOTE* oversampling for balanced learning.
+* *Feature Selection:* Recursive Feature Elimination (RFE) with Logistic Regression.
+* *Model Variety:* Logistic Regression, Random Forest (with RandomizedSearchCV), and XGBoost.
+* *External Generalization:* Validates model robustness on external ECG datasets.
+* *Evaluation Tools:* Confusion matrices and metrics logging.
+* *Model Saving:* Saves trained pipelines with Joblib.
 
 ---
 
-▶ Usage
+## 🛠 Built With
 
-Train + Validate
+*Core Libraries & Tools:*
 
-python main.py
-
-Outputs
-
-Trained models and preprocessing pipeline:
-
-xgb_model.pkl, scaler.pkl, imputer.pkl, rfe.pkl
-
-
-Confusion matrix plots:
-
-cm_logistic_regression.png, cm_random_forest.png, cm_xgboost.png, etc.
-
-
-External validation predictions:
-
-predictions_ptb-db.csv, predictions_chapman-shaoxing.csv
+* [WFDB](https://wfdb.readthedocs.io/) - ECG signal reading
+* [SciPy](https://scipy.org/) - Signal processing and feature extraction
+* [Scikit-learn](https://scikit-learn.org/) - ML pipeline, feature selection, evaluation
+* [XGBoost](https://xgboost.readthedocs.io/) - Gradient boosting classifier
+* [Imbalanced-learn](https://imbalanced-learn.org/) - SMOTE oversampling
+* [Matplotlib](https://matplotlib.org/) & [Seaborn](https://seaborn.pydata.org/) - Visualization
 
 ---
 
-🧩 Repository Structure
+## 🚀 Getting Started
 
-.
-├── main.py                     
-├── requirements.txt           
-├── README.md                   
-├── data/                       
-│   ├── ptb-xl/
-│   ├── ptbdb/
-│   ├── chapman-shaoxing/
-│   └── arrhythmia.csv
-└── outputs/                    
+### Prerequisites
 
+Ensure you have the following installed:
 
-📌 Future Improvements
+* Python 3.8+
+* Install required dependencies:
 
-Add deep learning models (CNN/LSTM) for raw ECG.
+  bash
+  pip install numpy pandas matplotlib seaborn scikit-learn imbalanced-learn wfdb xgboost tqdm joblib
+  
 
-Cache pre-extracted features for faster runs.
+### Dataset Setup
 
-Incorporate more advanced HRV features.
+1. *Download and Extract Datasets:*
 
+   * [PTB-XL](https://physionet.org/content/ptb-xl/1.0.3/)
+   * [PTB Diagnostic ECG Database](https://physionet.org/content/ptbdb/1.0.0/)
+   * [Chapman-Shaoxing ECG Dataset](https://figshare.com/collections/ChapmanECG/4560497)
+   * [Arrhythmia Dataset](https://archive.ics.uci.edu/ml/datasets/arrhythmia)
 
+2. *Update Directory Paths:*
+   Inside the script, update dataset paths:
+
+   python
+   PTBXL_DATA_DIR = r"your_path/ptb-xl"
+   ARRHYTHMIA_DATA_PATH = r"your_path/arrhythmia.data.csv"
+   PTBDB_DIR = r"your_path/ptbdb"
+   CHAPMAN_DIR = r"your_path/chapman"
+   
+
+### Usage
+
+1. Clone this repository:
+
+   bash
+   git clone https://github.com/tahirasultani11/ECG-Arrhythmia-Detection.git
+   cd ECG-Arrhythmia-Detection
+   
+
+2. Run the pipeline:
+
+   bash
+   python main.py
+   
+
+3. Outputs:
+
+   * Trained models saved as xgb_model.pkl, imputer.pkl, scaler.pkl, rfe.pkl
+   * Confusion matrices saved as .png
+   * Predictions stored in .csv
 
 ---
 
-✨ Acknowledgments
+## 📊 Example Results
 
-PhysioNet for PTB-XL and PTB-DB.
+The pipeline reports metrics for each model:
 
-Chapman University & Shaoxing People’s Hospital for Chapman-Shaoxing dataset.
+* *Logistic Regression:* Fast baseline model
+* *Random Forest:* Robust with tuned hyperparameters
+* *XGBoost:* High-performance boosting classifier
 
-UCI Machine Learning Repository for Arrhythmia dataset.
+External validation ensures generalizability across multiple datasets.
+
+---
