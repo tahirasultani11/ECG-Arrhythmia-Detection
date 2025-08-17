@@ -1,11 +1,11 @@
 
-# ECG-Arrhythmia-Detection
+# 🫀ECG-Arrhythmia-Detection
 
 ECG-Arrhythmia-Detection is an open-source project for *automated arrhythmia classification* using multiple ECG datasets. It integrates advanced *feature extraction techniques, robust **machine learning models* (Logistic Regression, Random Forest, and XGBoost), and validates across external benchmark datasets (PTB-XL, PTB-DB, Chapman-Shaoxing).
 
 ---
 
-## 🌟 Model in Action
+## 🔹 Model in Action
 
 Imagine a cardiologist reviewing ECG signals. This pipeline streamlines the workflow:
 
@@ -57,7 +57,7 @@ Ensure you have the following installed:
   pip install numpy pandas matplotlib seaborn scikit-learn imbalanced-learn wfdb xgboost tqdm joblib
   
 
-### Dataset Setup
+### 📂 Supported Datasets
 
 1. *Download and Extract Datasets:*
 
