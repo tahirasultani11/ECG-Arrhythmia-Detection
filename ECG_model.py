@@ -30,7 +30,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 PTBXL_DATA_DIR = r"D:\New folder (2)\project day\ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3"
 ARRHYTHMIA_DATA_PATH = r"D:\New folder (2)\project day\arrhythmia.data.csv"
 PTBDB_DIR=r"D:\New folder (2)\project day\ptb-diagnostic-ecg-database-1.0.0\ptb-diagnostic-ecg-database-1.0.0"
-CHAPMAN_DIR=r"D:\New folder (2)\project day\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0"
+CHAPMAN_DIR=r"D:\New folder (2)\project day\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\WFDBRecords"
 
 MAX_PTB_RECORDS = None 
 RFE_FEATURES = 150
@@ -146,18 +146,29 @@ def load_arrhythmia_data(arr_path):
 # =====================
 # PTB-DB LOADING
 # =====================
-def load_ptbdb_dataset(PTBDB_DIR):
-    dat_files = glob.glob(os.path.join(PTBDB_DIR, "patient*/*.dat"))
+def load_ptbdb_dataset(ptbdb_dir):
+    dat_files = glob.glob(os.path.join(ptbdb_dir, "patient*/*.dat"))
     features, labels = [], []
-    for dat_file in tqdm(dat_files, desc=" PTB-DB"):
+    
+    for dat_file in tqdm(dat_files, desc="PTB-DB"):
+        hea_file = dat_file.replace(".dat", ".hea")
         try:
+            # Extract ECG features
             rec = wfdb.rdrecord(dat_file[:-4])
             sig = rec.p_signal
             features.append(extract_advanced_features(sig))
-            diagnosis = rec.comments[0] if rec.comments else "UNKNOWN"
-            labels.append(0 if "Healthy" in diagnosis or "Control" in diagnosis else 1)
-        except:
+            
+            # Assign label from .hea
+            with open(hea_file, "r") as f:
+                header = f.read().upper()
+                if "HEALTHY CONTROL" in header:
+                    labels.append(0)  # Normal
+                else:
+                    labels.append(1)  # Arrhythmia / Disease
+        except Exception as e:
+            logging.warning(f"Failed processing {dat_file}: {e}")
             continue
+    
     return pd.DataFrame(features), pd.Series(labels)
 
 # =====================
@@ -181,15 +192,16 @@ def load_chapman_dataset(CHAPMAN_DIR):
             hea_file = mat_file.replace(".mat", ".hea")
             if os.path.exists(hea_file):
                 with open(hea_file, "r") as f:
-                    header = f.read()
-                    labels.append(0 if "NORMAL" in header.upper() else 1)
+                    header = f.read().upper()
+                    labels.append(0 if "NORMAL" in header else 1)
             else:
                 labels.append(1)  # default to arrhythmia if no header
         except Exception as e:
             logging.warning(f"Failed processing {mat_file}: {e}")
             continue
-
-    return pd.DataFrame(features), pd.Series(labels)
+    df_X, df_y = pd.DataFrame(features), pd.Series(labels)
+    logging.info(f"Chapman dataset loaded: {df_X.shape}, labels: {len(df_y)}")
+    return df_X, df_y
 
 # =====================
 # MODEL EVALUATION
